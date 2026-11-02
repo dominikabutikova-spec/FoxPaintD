@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head><title>TEST</title>
+<style>
+  #stage { width: 800px; height: 600px; background: #222; touch-action: none; }
+  #ov { position: absolute; top: 0; left: 0; width: 800px; height: 600px; cursor: crosshair; }
+</style>
+</head>
+<body>
+  <h1>Тест планшета</h1>
+  <div id="stage">
+    <canvas id="glCanvas"></canvas>
+    <canvas id="ov"></canvas>
+  </div>
+  <p id="log">Ожидание...</p>
+
+  <script>
+    const ov = document.getElementById('ov');
+    const ctx = ov.getContext('2d');
+    ov.width = 800; ov.height = 600;
+
+    let drawing = false;
+    let last = null;
+
+    ov.addEventListener('pointerdown', e => {
+      drawing = true;
+      last = { x: e.clientX, y: e.clientY };
+      ctx.beginPath();
+      ctx.arc(e.clientX, e.clientY, 3, 0, Math.PI*2);
+      ctx.fillStyle = 'red';
+      ctx.fill();
+      document.getElementById('log').textContent = 
+        `Событие: ${e.pointerType} | Давление: ${e.pressure.toFixed(2)} | X: ${e.clientX}`;
+    });
+
+    ov.addEventListener('pointermove', e => {
+      if (!drawing) return;
+      ctx.beginPath();
+      ctx.moveTo(last.x, last.y);
+      ctx.lineTo(e.clientX, e.clientY);
+      ctx.lineWidth = 5 + e.pressure * 20; // Толщина зависит от давления
+      ctx.strokeStyle = '#7c5cff';
+      ctx.stroke();
+      last = { x: e.clientX, y: e.clientY };
+      document.getElementById('log').textContent = 
+        `Событие: ${e.pointerType} | Давление: ${e.pressure.toFixed(2)}`;
+    });
+
+    ov.addEventListener('pointerup', () => drawing = false);
+  </script>
+</body>
+</html>
